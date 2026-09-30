@@ -17,7 +17,9 @@ from app.logic import (
     document_severity,
     document_state,
     expiration_label,
+    pipeline_summary,
     rank_applications,
+    ring_segments,
     suggest_expiration,
 )
 from app.models import Application, Document
@@ -75,6 +77,33 @@ def applications_list(
             "processors": processors,
             "selected_processor": processor,
             "query_string": _list_link(processor),
+        },
+    )
+
+
+@app.get("/dashboard")
+def dashboard(
+    request: Request,
+    db: Session = Depends(get_db),
+    today: date = Depends(get_today),
+):
+    applications = db.query(Application).options(selectinload(Application.documents)).all()
+    summary = pipeline_summary(applications, today)
+    processors = sorted(
+        summary["by_processor"].items(),
+        key=lambda item: (-item[1]["outstanding"], item[0]),
+    )
+    return templates.TemplateResponse(
+        request,
+        "dashboard.html",
+        {
+            "summary": summary,
+            "processors": processors,
+            "segments": ring_segments(
+                summary["applications_complete"],
+                summary["applications_in_progress"],
+                summary["applications_stalled"],
+            ),
         },
     )
 

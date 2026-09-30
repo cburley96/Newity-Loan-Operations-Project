@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - NEWITY{% endblock %}
+{% block content %}
+<h1>Pipeline dashboard</h1>
+
+<section class="dashboard-top">
+  <figure class="ring" id="pipeline-ring">
+    <svg viewBox="0 0 36 36" role="img" aria-label="Application progress">
+      <circle class="ring-track" cx="18" cy="18" r="15.9155"></circle>
+      {% for seg in segments if seg.count %}
+      <circle class="ring-segment ring-{{ seg.key }}" cx="18" cy="18" r="15.9155"
+              stroke-dasharray="{{ '%.3f'|format(seg.percent) }} {{ '%.3f'|format(100 - seg.percent) }}"
+              stroke-dashoffset="{{ '%.3f'|format(-seg.start) }}"></circle>
+      {% endfor %}
+    </svg>
+    <figcaption>
+      <span class="ring-total" id="ring-total">{{ summary.total_applications }}</span>
+      <span class="ring-caption">applications</span>
+    </figcaption>
+  </figure>
+
+  <ul class="legend" id="ring-legend">
+    {% for seg in segments %}
+    <li>
+      <span class="legend-swatch ring-{{ seg.key }}"></span>
+      <span class="legend-label">{{ seg.label }}</span>
+      <strong id="legend-{{ seg.key }}">{{ seg.count }}</strong>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="stat-tiles">
+  <article><small>Applications</small><strong id="stat-applications">{{ summary.total_applications }}</strong></article>
+  <article><small>Outstanding documents</small><strong id="stat-outstanding">{{ summary.total_outstanding }}</strong></article>
+  <article><small>Applications with outstanding documents</small><strong id="stat-with-outstanding">{{ summary.applications_with_outstanding }}</strong></article>
+  <article><small>Expired documents</small><strong id="stat-expired">{{ summary.expired_documents }}</strong></article>
+  <article><small>Expiring within 30 days</small><strong id="stat-expiring">{{ summary.expiring_soon_documents }}</strong></article>
+</section>
+
+<h2>By processor</h2>
+<table id="processor-table">
+  <thead>
+    <tr>
+      <th>Processor</th>
+      <th>Applications</th>
+      <th>Outstanding documents</th>
+      <th>Stalled</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for name, stats in processors %}
+    <tr>
+      <td><a href="/?processor={{ name|urlencode }}">{{ name }}</a></td>
+      <td>{{ stats.applications }}</td>
+      <td>{{ stats.outstanding }}</td>
+      <td>{{ stats.stalled }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No applications yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
