@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Applications - NEWITY{% endblock %}
+{% block content %}
+<h1>Applications</h1>
+
+<form method="get" action="/">
+  <label for="processor">Processor</label>
+  <select id="processor" name="processor" onchange="this.form.submit()">
+    <option value="">All processors</option>
+    {% for p in processors %}
+    <option value="{{ p }}" {% if p == selected_processor %}selected{% endif %}>{{ p }}</option>
+    {% endfor %}
+  </select>
+  <noscript><button type="submit">Filter</button></noscript>
+</form>
+
+<p id="result-count">{{ rows|length }} application{{ "" if rows|length == 1 else "s" }}, most severe first</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Application</th>
+      <th>Business</th>
+      <th>Borrower</th>
+      <th>Processor</th>
+      <th>Loan amount</th>
+      <th>Outstanding</th>
+      <th>Severity</th>
+      <th>Expiration</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for application, summary in rows %}
+    <tr data-application-id="{{ application.application_id }}">
+      <td>{{ application.application_id }}</td>
+      <td>{{ application.business_name }}</td>
+      <td>{{ application.borrower_name }}</td>
+      <td>{{ application.assigned_processor }}</td>
+      <td>${{ "{:,.0f}".format(application.loan_amount) }}</td>
+      <td>{{ summary.outstanding_count }}</td>
+      <td>{{ summary.severity_score }}</td>
+      <td>
+        {% if summary.expired_count %}
+        <span class="badge badge-expired">{{ summary.expired_count }} expired</span>
+        {% endif %}
+        {% if summary.expiring_soon_count %}
+        <span class="badge badge-expiring">{{ summary.expiring_soon_count }} expiring soon</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8">No applications match this filter.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
