@@ -2,19 +2,22 @@
 {% block title %}Applications - NEWITY{% endblock %}
 {% block content %}
 <h1>Applications</h1>
-<p><a href="/applications/new" role="button" id="new-application-link">New application</a></p>
 
-<form method="get" action="/">
-  <label for="processor">Processor</label>
-  <select id="processor" name="processor" onchange="this.form.submit()">
-    <option value="">All processors</option>
-    {% for p in processors %}
-    <option value="{{ p }}" {% if p == selected_processor %}selected{% endif %}>{{ p }}</option>
-    {% endfor %}
-  </select>
-  <noscript><button type="submit">Filter</button></noscript>
-</form>
+<div class="toolbar">
+  <form method="get" action="/" class="filter">
+    <label for="processor">Processor</label>
+    <select id="processor" name="processor" onchange="this.form.submit()">
+      <option value="">All processors</option>
+      {% for p in processors %}
+      <option value="{{ p }}" {% if p == selected_processor %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+    <noscript><button type="submit">Filter</button></noscript>
+  </form>
+  <a href="/applications/new" role="button" id="new-application-link">New application</a>
+</div>
 
+<div class="overflow-auto">
 <table>
   <thead>
     <tr>
@@ -22,9 +25,9 @@
       <th>Business</th>
       <th>Borrower</th>
       <th>Processor</th>
-      <th>Loan amount</th>
-      <th>Outstanding</th>
-      <th>Severity</th>
+      <th class="num">Loan amount</th>
+      <th class="num">Outstanding</th>
+      <th class="num">Severity</th>
       <th>Expiration</th>
       <th>Last activity</th>
     </tr>
@@ -32,13 +35,13 @@
   <tbody>
     {% for application, summary in rows %}
     <tr data-application-id="{{ application.application_id }}">
-      <td><a href="/applications/{{ application.application_id }}{{ query_string }}">{{ application.application_id }}</a></td>
+      <td class="nowrap"><a href="/applications/{{ application.application_id }}{{ query_string }}">{{ application.application_id }}</a></td>
       <td>{{ application.business_name }}</td>
       <td>{{ application.borrower_name }}</td>
       <td>{{ application.assigned_processor }}</td>
-      <td>${{ "{:,.0f}".format(application.loan_amount) }}</td>
-      <td>{{ summary.outstanding_count }}</td>
-      <td>{{ summary.severity_score }}</td>
+      <td class="num">${{ "{:,.0f}".format(application.loan_amount) }}</td>
+      <td class="num">{{ summary.outstanding_count }}</td>
+      <td class="num">{{ summary.severity_score }}</td>
       <td>
         {% if summary.expired_count %}
         <span class="badge badge-expired">{{ summary.expired_count }} expired</span>
@@ -47,7 +50,7 @@
         <span class="badge badge-expiring">{{ summary.expiring_soon_count }} expiring soon</span>
         {% endif %}
       </td>
-      <td>
+      <td class="nowrap">
         {% if summary.days_since_activity is none %}&mdash;{% elif summary.days_since_activity <= 0 %}Today{% else %}{{ summary.days_since_activity }}d ago{% endif %}
         {% if summary.is_stalled %}<span class="badge badge-stalled">Stalled</span>{% endif %}
       </td>
@@ -57,4 +60,5 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
 {% endblock %}

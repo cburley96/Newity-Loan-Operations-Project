@@ -12,9 +12,10 @@
     <nav>
       <ul><li><strong>NEWITY Loan Operations</strong></li></ul>
       <ul>
-        <li><a href="/dashboard">Dashboard</a></li>
-        <li><a href="/">Applications</a></li>
-        <li><a href="/import">Import</a></li>
+        {% set path = request.url.path %}
+        <li><a href="/dashboard" {% if path.startswith('/dashboard') %}aria-current="page"{% endif %}>Dashboard</a></li>
+        <li><a href="/" {% if path == '/' or path.startswith('/applications') %}aria-current="page"{% endif %}>Applications</a></li>
+        <li><a href="/import" {% if path.startswith('/import') %}aria-current="page"{% endif %}>Import</a></li>
       </ul>
     </nav>
   </header>

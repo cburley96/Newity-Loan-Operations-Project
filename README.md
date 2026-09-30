@@ -69,7 +69,8 @@ The weights sit at the top of `app/logic.py` and are easy to tune.
 
 ## Known limitations
 
-- **The sample data is old.** The provided CSV is dated December 2025 to early 2026, so relative to today almost every application looks stalled and many documents look expired. That is the rules working as designed, not a bug. Anything you add or edit today starts fresh.
+- **The sample data is old.** The provided CSV is dated December 2025 to early 2026, so relative to today almost every application looks stalled and many documents look expired. That is the rules working as designed, not a bug. Anything you add or edit today starts fresh. To view the sample data as it would have looked at the time, set an as-of date before starting the server, for example `ASOF_DATE=2026-02-15 python -m uvicorn app.main:app` (Windows PowerShell: `$env:ASOF_DATE="2026-02-15"` first). This gives a realistic mix of stalled and in-progress applications. Leave it unset for normal use, and unset it for the demo CSVs below, which are dated September 2026.
+- **Some provided rows contradict themselves.** 8 of the 37 Expired documents in the sample CSV (for example APP-2026-1027) still have an expiration date years in the future, with the note "replacement requested". The status wins: they count as expired and are ranked that way. The page shows "Marked expired, but date on file is in the future" instead of a countdown, so a processor knows to check the date. The data is left as provided.
 - The processor list is the three names in the data plus any others found in the database. There is no processor management screen.
 - The processor filter on the list is lost after adding, editing or removing something.
 - Documents imported with a non-standard type name work everywhere, but cannot be re-added after removing them (the add menu only offers the 12 standard types).
@@ -86,10 +87,20 @@ app/
   models.py       Application and Document tables
   templates/      Jinja pages       static/  CSS and a little JS
 data/             the provided sample spreadsheet
+demo_data/        CSVs to try on the Import page (see below)
 tests/            unit tests (logic) and functional tests (routes)
 ```
 
 Stack: Python, FastAPI, SQLAlchemy + SQLite, Jinja2, Pico.css (loaded from a CDN, so the first page load needs internet). No build step.
+
+## Demo files for the Import page
+
+Upload these in order from the Import page. Dates are set around late September 2026, so the new applications show as recently active rather than stalled.
+
+1. `demo_data/1_new_applications.csv`: 3 new applications, 13 documents, nothing wrong. One bank statement is about to expire and one document is already expired.
+2. `demo_data/2_duplicates_and_errors.csv`: 2 rows are skipped as duplicates and 4 are rejected, each listed with its row number and a plain-English reason. The valid rows still import.
+3. `demo_data/3_missing_column.csv`: the whole file is refused with "Missing column(s): notes" and nothing is imported.
+4. `demo_data/4_mixed_pipeline.csv`: 5 new applications in different states, for showing off the dashboard: one complete, one stalled (48 days quiet), one with two documents expiring soon, one high-severity with two expired tax returns, and one in progress. Import it once; a second upload skips everything as duplicates.
 
 ## Other deliverables
 

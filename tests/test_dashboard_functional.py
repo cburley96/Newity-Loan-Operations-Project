@@ -138,3 +138,27 @@ def test_summary_sections_show_empty_messages(client, session_factory):
     html = client.get("/dashboard").text
     assert "Nothing needs attention right now." in html
     assert "No expired or expiring documents." in html
+
+
+# --- front-end polish --------------------------------------------------------
+
+
+def current_links(html):
+    return re.findall(r'<a href="([^"]+)" aria-current="page"', html)
+
+
+def test_nav_marks_the_current_page(client):
+    assert current_links(client.get("/dashboard").text) == ["/dashboard"]
+    assert current_links(client.get("/").text) == ["/"]
+    assert current_links(client.get("/import").text) == ["/import"]
+
+
+def test_nav_keeps_applications_active_on_detail_pages(client):
+    assert current_links(client.get("/applications/APP-WORST").text) == ["/"]
+
+
+def test_list_puts_filter_and_new_button_in_one_toolbar(client):
+    html = client.get("/").text
+    toolbar = html.split('class="toolbar"')[1].split("</div>")[0]
+    assert 'id="processor"' in toolbar
+    assert 'id="new-application-link"' in toolbar

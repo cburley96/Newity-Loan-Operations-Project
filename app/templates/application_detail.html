@@ -22,20 +22,23 @@
   <p><a href="/applications/{{ application.application_id }}/edit" id="edit-link">Edit details</a></p>
 </section>
 
-<section id="health-summary" class="facts">
-  <div><dt>Outstanding</dt><dd id="sum-outstanding">{{ summary.outstanding_count }}</dd></div>
-  <div><dt>Expired</dt><dd id="sum-expired">{{ summary.expired_count }}</dd></div>
-  <div><dt>Expiring soon</dt><dd id="sum-expiring">{{ summary.expiring_soon_count }}</dd></div>
-  <div><dt>Severity</dt><dd id="sum-severity">{{ summary.severity_score }}</dd></div>
-  <div>
-    <dt>Last activity</dt>
-    <dd>
-      <span id="sum-activity">{{ activity_text }}</span>
-      <span id="stalled-badge" class="badge badge-stalled" {% if not summary.is_stalled %}hidden{% endif %}>Stalled</span>
-    </dd>
-  </div>
+<section id="health-summary">
+  <dl class="facts summary-tiles">
+    <div><dt>Outstanding</dt><dd id="sum-outstanding">{{ summary.outstanding_count }}</dd></div>
+    <div><dt>Expired</dt><dd id="sum-expired">{{ summary.expired_count }}</dd></div>
+    <div><dt>Expiring soon</dt><dd id="sum-expiring">{{ summary.expiring_soon_count }}</dd></div>
+    <div><dt>Severity</dt><dd id="sum-severity">{{ summary.severity_score }}</dd></div>
+    <div>
+      <dt>Last activity</dt>
+      <dd>
+        <span id="sum-activity">{{ activity_text }}</span>
+        <span id="stalled-badge" class="badge badge-stalled" {% if not summary.is_stalled %}hidden{% endif %}>Stalled</span>
+      </dd>
+    </div>
+  </dl>
 </section>
 
+<div class="overflow-auto">
 <table id="documents" data-application-id="{{ application.application_id }}">
   <thead>
     <tr>
@@ -44,7 +47,7 @@
       <th>Received</th>
       <th>Expires</th>
       <th>Notes</th>
-      <th></th>
+      <th><span class="visually-hidden">Flag and actions</span></th>
     </tr>
   </thead>
   <tbody>
@@ -81,6 +84,7 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
 
 <section id="add-document">
   {% if addable_types %}

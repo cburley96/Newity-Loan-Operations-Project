@@ -60,7 +60,7 @@ def test_outstanding_count_and_loan_amount_render(client):
     html = client.get("/").text
     worst_row = html.split('data-application-id="APP-WORST"')[1].split("</tr>")[0]
     assert "$250,000" in worst_row
-    assert "<td>1</td>" in worst_row
+    assert '<td class="num">1</td>' in worst_row
 
 
 def test_static_stylesheet_served(client):

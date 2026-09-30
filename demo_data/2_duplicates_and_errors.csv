@@ -1,0 +1,10 @@
+application_id,business_name,borrower_name,loan_amount,application_date,assigned_processor,document_type,document_status,date_received,expiration_date,notes
+APP-2026-2101,Lakeside Pharmacy,Owen Hart,"$240,000",9/10/2026,Aisha Patel,SBA Form 1919,Approved,9/17/2026,,Good row (dollar sign and comma are fine)
+APP-2026-2101,Lakeside Pharmacy,Owen Hart,"$240,000",9/10/2026,Aisha Patel,Lease Agreement,Received,9/23/2026,,Good row
+APP-2026-2101,Lakeside Pharmacy,Owen Hart,"$240,000",9/10/2026,Aisha Patel,Lease Agreement,Approved,9/26/2026,,Duplicate of the row above - skipped
+APP-2026-1001,Metro Dental Group,Elena Williams,390000,12/1/2025,Aisha Patel,Ownership Verification,Approved,1/20/2026,,Duplicate of existing sample data - skipped
+APP-2026-2102,Ridge Auto Glass,Tom Reyes,150000,9/12/2026,Janet Morrison,Debt Schedule,Done,9/20/2026,,Bad status
+APP-2026-2102,Ridge Auto Glass,Tom Reyes,150000,9/12/2026,Janet Morrison,SBA Form 912,Received,31/9/2026,,Bad date
+APP-2026-2103,Pine Street Bakery,Lena Cho,about 90k,9/13/2026,Ricardo Fuentes,Debt Schedule,Pending,,,Bad loan amount
+APP-2026-2104,,Sam Ito,120000,9/15/2026,Ricardo Fuentes,Debt Schedule,Pending,,,Missing business name
+APP-2026-2105,Oak Hollow Farms,Rita Vega,275000,9/16/2026,Janet Morrison,Insurance Verification,Under Review,9/27/2026,,Good row

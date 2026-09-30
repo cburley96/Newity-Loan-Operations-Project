@@ -248,6 +248,17 @@ def test_expiration_label_wording():
     assert expiration_label(-5) == "Expired 5 days ago"
 
 
+def test_document_expiration_text_for_marked_expired():
+    from app.logic import document_expiration_text
+
+    assert document_expiration_text("expired", 1075) == "Marked expired, but date on file is in the future"
+    assert document_expiration_text("expired", 0) == "Marked expired, but date on file is in the future"
+    assert document_expiration_text("expired", None) == "Marked expired"
+    assert document_expiration_text("expired", -5) == "Expired 5 days ago"
+    assert document_expiration_text("expiring_soon", 12) == "Expires in 12 days"
+    assert document_expiration_text(None, 400) == "Expires in 400 days"
+
+
 # ---- stalled tracking ------------------------------------------------------
 
 LONG_AGO = TODAY - timedelta(days=STALLED_DAYS)
@@ -426,7 +437,7 @@ def test_attention_documents_status_expired_with_future_date_is_labelled_marked_
     a = app(documents=[doc("Expired", expiration=date(2029, 1, 1))])
     (row,) = attention_documents([a], TODAY)
     assert row["state"] == "expired"
-    assert row["label"] == "Marked expired"
+    assert row["label"] == "Marked expired, but date on file is in the future"
 
 
 def test_attention_documents_expired_come_before_expiring_soon():

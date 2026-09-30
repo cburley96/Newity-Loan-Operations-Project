@@ -67,6 +67,16 @@ def test_detail_shows_expiration_text_and_badge(client):
     assert "Expiring soon" in html
 
 
+def test_detail_document_marked_expired_never_says_expires_in_days(client, session_factory):
+    add_document(
+        session_factory, "APP-MID", "Personal Tax Returns (3yr)", "Expired",
+        date_received=date(2025, 12, 1), expiration_date=date(2028, 12, 1),
+    )
+    html = client.get("/applications/APP-MID").text
+    assert "Marked expired" in html
+    assert "Expires in 1065 days" not in html
+
+
 def test_detail_status_dropdown_offers_all_statuses_and_selects_current(client):
     html = client.get("/applications/APP-MID").text
     for status in ("Pending", "Received", "Under Review", "Approved", "Expired", "Not Required"):

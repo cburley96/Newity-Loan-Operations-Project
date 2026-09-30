@@ -1,4 +1,5 @@
 import math
+import os
 import re
 from datetime import date
 from pathlib import Path
@@ -24,8 +25,8 @@ from app.logic import (
     attention_documents,
     days_until_expiration,
     document_severity,
+    document_expiration_text,
     document_state,
-    expiration_label,
     next_application_id,
     pipeline_summary,
     rank_applications,
@@ -50,7 +51,8 @@ templates = Jinja2Templates(directory=APP_DIR / "templates")
 
 
 def get_today() -> date:
-    return date.today()
+    as_of = os.environ.get("ASOF_DATE")
+    return date.fromisoformat(as_of) if as_of else date.today()
 
 
 @app.on_event("startup")
@@ -429,7 +431,7 @@ def document_view(document: Document, today: date) -> dict:
         "notes": document.notes or "",
         "state": state or "",
         "state_label": STATE_LABELS.get(state, ""),
-        "expiration_text": expiration_label(days),
+        "expiration_text": document_expiration_text(state, days),
         "severity": document_severity(document, today),
     }
 

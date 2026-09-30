@@ -39,26 +39,27 @@
 </section>
 
 <h2>Most urgent applications</h2>
-<p><small>Ranked by severity score, top {{ top_applications|length }} shown. Applications with nothing outstanding are left out.</small></p>
+<p class="helper"><small>Ranked by severity score, top {{ top_applications|length }} shown. Applications with nothing outstanding are left out.</small></p>
+<div class="overflow-auto">
 <table id="top-applications">
   <thead>
     <tr>
       <th>Application</th>
       <th>Business</th>
       <th>Processor</th>
-      <th>Outstanding</th>
-      <th>Severity</th>
+      <th class="num">Outstanding</th>
+      <th class="num">Severity</th>
       <th>Flags</th>
     </tr>
   </thead>
   <tbody>
     {% for application, s in top_applications %}
     <tr data-application-id="{{ application.application_id }}">
-      <td><a href="/applications/{{ application.application_id }}">{{ application.application_id }}</a></td>
+      <td class="nowrap"><a href="/applications/{{ application.application_id }}">{{ application.application_id }}</a></td>
       <td>{{ application.business_name }}</td>
       <td>{{ application.assigned_processor }}</td>
-      <td>{{ s.outstanding_count }}</td>
-      <td>{{ s.severity_score }}</td>
+      <td class="num">{{ s.outstanding_count }}</td>
+      <td class="num">{{ s.severity_score }}</td>
       <td>
         {% if s.expired_count %}<span class="badge badge-expired">{{ s.expired_count }} expired</span>{% endif %}
         {% if s.expiring_soon_count %}<span class="badge badge-expiring">{{ s.expiring_soon_count }} expiring soon</span>{% endif %}
@@ -70,9 +71,11 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
 
 <h2>Expired and expiring documents</h2>
-<p><small id="attention-count">Showing {{ attention_documents|length }} of {{ attention_total }}. Expired first, most overdue first; expiring means within 30 days.</small></p>
+<p class="helper"><small id="attention-count">Showing {{ attention_documents|length }} of {{ attention_total }}. Expired first, most overdue first; expiring means within 30 days.</small></p>
+<div class="overflow-auto">
 <table id="attention-documents">
   <thead>
     <tr>
@@ -90,7 +93,7 @@
       <td>{{ d.business_name }}</td>
       <td>{{ d.assigned_processor }}</td>
       <td>{{ d.document_type }}</td>
-      <td>
+      <td class="nowrap">
         <span class="badge {% if d.state == 'expired' %}badge-expired{% else %}badge-expiring{% endif %}">{{ d.label }}</span>
         {% if d.expiration_date %}<small>{{ d.expiration_date }}</small>{% endif %}
       </td>
@@ -100,28 +103,31 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
 
 <h2>By processor</h2>
+<div class="overflow-auto">
 <table id="processor-table">
   <thead>
     <tr>
       <th>Processor</th>
-      <th>Applications</th>
-      <th>Outstanding documents</th>
-      <th>Stalled</th>
+      <th class="num">Applications</th>
+      <th class="num">Outstanding documents</th>
+      <th class="num">Stalled</th>
     </tr>
   </thead>
   <tbody>
     {% for name, stats in processors %}
     <tr>
       <td><a href="/?processor={{ name|urlencode }}">{{ name }}</a></td>
-      <td>{{ stats.applications }}</td>
-      <td>{{ stats.outstanding }}</td>
-      <td>{{ stats.stalled }}</td>
+      <td class="num">{{ stats.applications }}</td>
+      <td class="num">{{ stats.outstanding }}</td>
+      <td class="num">{{ stats.stalled }}</td>
     </tr>
     {% else %}
     <tr><td colspan="4">No applications yet.</td></tr>
     {% endfor %}
   </tbody>
 </table>
+</div>
 {% endblock %}
