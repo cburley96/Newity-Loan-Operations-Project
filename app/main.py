@@ -1,4 +1,5 @@
 import math
+import os
 import re
 from datetime import date
 from pathlib import Path
@@ -50,7 +51,8 @@ templates = Jinja2Templates(directory=APP_DIR / "templates")
 
 
 def get_today() -> date:
-    return date.today()
+    as_of = os.environ.get("ASOF_DATE")
+    return date.fromisoformat(as_of) if as_of else date.today()
 
 
 @app.on_event("startup")

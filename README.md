@@ -69,7 +69,7 @@ The weights sit at the top of `app/logic.py` and are easy to tune.
 
 ## Known limitations
 
-- **The sample data is old.** The provided CSV is dated December 2025 to early 2026, so relative to today almost every application looks stalled and many documents look expired. That is the rules working as designed, not a bug. Anything you add or edit today starts fresh.
+- **The sample data is old.** The provided CSV is dated December 2025 to early 2026, so relative to today almost every application looks stalled and many documents look expired. That is the rules working as designed, not a bug. Anything you add or edit today starts fresh. To view the sample data as it would have looked at the time, set an as-of date before starting the server, for example `ASOF_DATE=2026-02-15 python -m uvicorn app.main:app` (Windows PowerShell: `$env:ASOF_DATE="2026-02-15"` first). This gives a realistic mix of stalled and in-progress applications. Leave it unset for normal use, and unset it for the demo CSVs below, which are dated September 2026.
 - The processor list is the three names in the data plus any others found in the database. There is no processor management screen.
 - The processor filter on the list is lost after adding, editing or removing something.
 - Documents imported with a non-standard type name work everywhere, but cannot be re-added after removing them (the add menu only offers the 12 standard types).
