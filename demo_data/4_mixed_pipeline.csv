@@ -1,0 +1,22 @@
+application_id,business_name,borrower_name,loan_amount,application_date,assigned_processor,document_type,document_status,date_received,expiration_date,notes
+APP-2026-2301,Willow Creek Veterinary,Grace Lindqvist,410000,8/17/2026,Janet Morrison,SBA Form 1919,Approved,8/24/2026,,
+APP-2026-2301,Willow Creek Veterinary,Grace Lindqvist,410000,8/17/2026,Janet Morrison,Bank Statements (90 day),Approved,9/20/2026,12/19/2026,Fresh statements on file
+APP-2026-2301,Willow Creek Veterinary,Grace Lindqvist,410000,8/17/2026,Janet Morrison,Business Tax Returns (3yr),Approved,9/2/2026,9/2/2029,
+APP-2026-2301,Willow Creek Veterinary,Grace Lindqvist,410000,8/17/2026,Janet Morrison,Personal Tax Returns (3yr),Approved,9/2/2026,9/2/2029,
+APP-2026-2301,Willow Creek Veterinary,Grace Lindqvist,410000,8/17/2026,Janet Morrison,Lease Agreement,Not Required,,,Owns the building
+APP-2026-2302,Northgate Plumbing,Victor Alvarez,225000,8/3/2026,Ricardo Fuentes,SBA Form 912,Approved,8/10/2026,,
+APP-2026-2302,Northgate Plumbing,Victor Alvarez,225000,8/3/2026,Ricardo Fuentes,Bank Statements (90 day),Pending,,,Borrower has not responded since August
+APP-2026-2302,Northgate Plumbing,Victor Alvarez,225000,8/3/2026,Ricardo Fuentes,Business Tax Returns (3yr),Pending,,,
+APP-2026-2302,Northgate Plumbing,Victor Alvarez,225000,8/3/2026,Ricardo Fuentes,Insurance Verification,Received,8/12/2026,8/12/2027,
+APP-2026-2303,Bright Path Daycare,Naomi Fischer,140000,9/9/2026,Aisha Patel,Bank Statements (90 day),Received,7/10/2026,10/8/2026,Expires in about a week
+APP-2026-2303,Bright Path Daycare,Naomi Fischer,140000,9/9/2026,Aisha Patel,Business Licenses & Permits,Approved,9/18/2026,,
+APP-2026-2303,Bright Path Daycare,Naomi Fischer,140000,9/9/2026,Aisha Patel,Insurance Verification,Received,9/22/2026,10/20/2026,Policy renews soon
+APP-2026-2303,Bright Path Daycare,Naomi Fischer,140000,9/9/2026,Aisha Patel,Ownership Verification,Under Review,9/25/2026,,
+APP-2026-2304,Copper Kettle Diner,Luis Barrera,360000,9/4/2026,Ricardo Fuentes,Business Tax Returns (3yr),Expired,6/1/2026,9/1/2026,Old filing rejected by lender
+APP-2026-2304,Copper Kettle Diner,Luis Barrera,360000,9/4/2026,Ricardo Fuentes,Personal Tax Returns (3yr),Expired,6/1/2026,9/10/2026,Old filing rejected by lender
+APP-2026-2304,Copper Kettle Diner,Luis Barrera,360000,9/4/2026,Ricardo Fuentes,Bank Statements (90 day),Received,9/26/2026,12/25/2026,
+APP-2026-2304,Copper Kettle Diner,Luis Barrera,360000,9/4/2026,Ricardo Fuentes,Debt Schedule,Pending,,,
+APP-2026-2305,Riverbend Wellness,Amara Okafor,290000,9/11/2026,Janet Morrison,SBA Form 1919,Approved,9/16/2026,,
+APP-2026-2305,Riverbend Wellness,Amara Okafor,290000,9/11/2026,Janet Morrison,Articles of Incorporation,Approved,9/16/2026,,
+APP-2026-2305,Riverbend Wellness,Amara Okafor,290000,9/11/2026,Janet Morrison,Business Financial Statements,Under Review,9/28/2026,,Reviewing for completeness
+APP-2026-2305,Riverbend Wellness,Amara Okafor,290000,9/11/2026,Janet Morrison,Lease Agreement,Pending,,,Landlord signature needed

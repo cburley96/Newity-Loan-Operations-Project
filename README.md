@@ -99,6 +99,7 @@ Upload these in order from the Import page. Dates are set around late September 
 1. `demo_data/1_new_applications.csv`: 3 new applications, 13 documents, nothing wrong. One bank statement is about to expire and one document is already expired.
 2. `demo_data/2_duplicates_and_errors.csv`: 2 rows are skipped as duplicates and 4 are rejected, each listed with its row number and a plain-English reason. The valid rows still import.
 3. `demo_data/3_missing_column.csv`: the whole file is refused with "Missing column(s): notes" and nothing is imported.
+4. `demo_data/4_mixed_pipeline.csv`: 5 new applications in different states, for showing off the dashboard: one complete, one stalled (48 days quiet), one with two documents expiring soon, one high-severity with two expired tax returns, and one in progress. Import it once; a second upload skips everything as duplicates.
 
 ## Other deliverables
 
