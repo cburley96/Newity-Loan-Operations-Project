@@ -181,10 +181,12 @@ def test_pipeline_summary_aggregates_and_groups_by_processor():
     assert s["by_processor"]["Aisha Patel"] == {
         "applications": 2,
         "outstanding": 1,
+        "stalled": 0,
     }
     assert s["by_processor"]["Janet Morrison"] == {
         "applications": 1,
         "outstanding": 2,
+        "stalled": 0,
     }
 
 
@@ -309,3 +311,40 @@ def test_activity_label():
     assert activity_label(0) == "Today"
     assert activity_label(1) == "1 day ago"
     assert activity_label(20) == "20 days ago"
+
+
+# ---- dashboard -------------------------------------------------------------
+
+
+def test_pipeline_counts_expiration_documents_across_applications():
+    apps = [
+        app(documents=[doc("Expired"), doc("Approved", expiration=date(2026, 1, 10))]),
+        app(documents=[doc("Approved", expiration=date(2025, 12, 1)), doc("Pending")]),
+    ]
+    s = pipeline_summary(apps, TODAY)
+    assert s["expired_documents"] == 2
+    assert s["expiring_soon_documents"] == 1
+
+
+def test_pipeline_by_processor_counts_stalled():
+    apps = [
+        app("Aisha Patel", [doc("Pending")], last_activity=LONG_AGO),
+        app("Aisha Patel", [doc("Pending")]),
+    ]
+    assert pipeline_summary(apps, TODAY)["by_processor"]["Aisha Patel"]["stalled"] == 1
+
+
+def test_ring_segments_percentages_and_offsets():
+    from app.logic import ring_segments
+
+    segments = ring_segments(complete=1, in_progress=1, stalled=2)
+    assert [s["key"] for s in segments] == ["complete", "in-progress", "stalled"]
+    assert [s["percent"] for s in segments] == [25.0, 25.0, 50.0]
+    assert [s["start"] for s in segments] == [0.0, 25.0, 50.0]
+    assert sum(s["percent"] for s in segments) == 100.0
+
+
+def test_ring_segments_empty_pipeline_has_no_division_error():
+    from app.logic import ring_segments
+
+    assert all(s["percent"] == 0.0 for s in ring_segments(0, 0, 0))

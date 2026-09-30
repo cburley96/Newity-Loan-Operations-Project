@@ -134,6 +134,7 @@ def pipeline_summary(applications, today: date) -> dict:
     with_outstanding = 0
     with_expiration_issue = 0
     complete = stalled = 0
+    expired_documents = expiring_soon_documents = 0
     by_processor: dict[str, dict] = {}
 
     for application in applications:
@@ -143,11 +144,15 @@ def pipeline_summary(applications, today: date) -> dict:
         with_expiration_issue += summary["has_expiration_issue"]
         complete += summary["is_complete"]
         stalled += summary["is_stalled"]
+        expired_documents += summary["expired_count"]
+        expiring_soon_documents += summary["expiring_soon_count"]
         bucket = by_processor.setdefault(
-            application.assigned_processor, {"applications": 0, "outstanding": 0}
+            application.assigned_processor,
+            {"applications": 0, "outstanding": 0, "stalled": 0},
         )
         bucket["applications"] += 1
         bucket["outstanding"] += summary["outstanding_count"]
+        bucket["stalled"] += summary["is_stalled"]
 
     return {
         "total_applications": len(applications),
@@ -157,8 +162,28 @@ def pipeline_summary(applications, today: date) -> dict:
         "applications_complete": complete,
         "applications_stalled": stalled,
         "applications_in_progress": len(applications) - complete - stalled,
+        "expired_documents": expired_documents,
+        "expiring_soon_documents": expiring_soon_documents,
         "by_processor": by_processor,
     }
+
+
+def ring_segments(complete: int, in_progress: int, stalled: int) -> list[dict]:
+    """Segments for a 100-unit-circumference SVG ring: percent and start offset per slice."""
+    total = complete + in_progress + stalled
+    segments = []
+    start = 0.0
+    for key, label, count in (
+        ("complete", "Complete", complete),
+        ("in-progress", "In progress", in_progress),
+        ("stalled", "Stalled", stalled),
+    ):
+        percent = count / total * 100 if total else 0.0
+        segments.append(
+            {"key": key, "label": label, "count": count, "percent": percent, "start": start}
+        )
+        start += percent
+    return segments
 
 
 DOCUMENT_STATUSES = [

@@ -221,3 +221,27 @@ def test_updates_change_list_ranking(client, session_factory):
     post(client, "APP-WORST", d, {"document_status": "Approved"})
     ids = re.findall(r'data-application-id="([^"]+)"', client.get("/").text)
     assert ids == ["APP-MID", "APP-MILD", "APP-CLEAN", "APP-WORST"]
+
+
+# ---- explicit per-row save -------------------------------------------------
+
+
+def test_rows_start_with_hidden_save_and_cancel_buttons(client):
+    html = client.get("/applications/APP-MID").text
+    assert html.count('class="row-actions" hidden') == 2
+    assert html.count('class="row-save"') == 2
+    assert html.count('class="row-cancel') == 2
+
+
+def test_multiple_fields_save_together_in_one_request(client, session_factory):
+    d = doc_id(session_factory, "APP-MID", "Lease Agreement")
+    response = post(
+        client,
+        "APP-MID",
+        d,
+        {"document_status": "Under Review", "date_received": "2025-12-30", "notes": "checking"},
+    )
+    assert response.status_code == 200
+    assert stored(session_factory, d) == (
+        "Under Review", date(2025, 12, 30), None, "checking"
+    )
