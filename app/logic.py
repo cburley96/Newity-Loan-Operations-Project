@@ -148,10 +148,7 @@ def attention_documents(applications, today: date) -> list[dict]:
             if state not in ("expired", "expiring_soon"):
                 continue
             days = days_until_expiration(document.expiration_date, today)
-            if state == "expired" and (days is None or days >= 0):
-                label = "Marked expired"
-            else:
-                label = expiration_label(days)
+            label = document_expiration_text(state, days)
             rows.append(
                 {
                     "application_id": application.application_id,
@@ -279,3 +276,12 @@ def expiration_label(days: int | None) -> str:
     if days == 0:
         return "Expires today"
     return f"Expires in {days} day{'' if days == 1 else 's'}"
+
+
+def document_expiration_text(state: str | None, days: int | None) -> str:
+    """Like expiration_label, but a document marked Expired is never described as still valid."""
+    if state == "expired" and days is None:
+        return "Marked expired"
+    if state == "expired" and days >= 0:
+        return "Marked expired, but date on file is in the future"
+    return expiration_label(days)
