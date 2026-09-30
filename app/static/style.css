@@ -16,3 +16,49 @@
   background: #fff1cc;
   color: #7a5200;
 }
+
+.badge-pending {
+  background: #e3ecfb;
+  color: #1c3f8a;
+}
+
+.detail-nav {
+  display: flex;
+  justify-content: space-between;
+}
+
+.detail-nav span a + a {
+  margin-left: 1rem;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.facts dt {
+  font-size: 0.8rem;
+  color: var(--pico-muted-color);
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+#documents input,
+#documents select {
+  margin-bottom: 0;
+}
+
+.save-message {
+  display: block;
+  color: var(--pico-muted-color);
+}
+
+.save-error {
+  color: #a11d1d;
+  font-weight: 600;
+}

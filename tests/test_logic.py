@@ -182,3 +182,49 @@ def test_pipeline_summary_empty():
     s = pipeline_summary([], TODAY)
     assert s["total_applications"] == 0
     assert s["by_processor"] == {}
+
+
+def test_suggest_expiration_bank_statement_is_90_days():
+    from app.logic import suggest_expiration
+
+    assert suggest_expiration("Bank Statements (90 day)", date(2026, 1, 1)) == date(2026, 4, 1)
+
+
+def test_suggest_expiration_tax_returns_are_3_years():
+    from app.logic import suggest_expiration
+
+    for doc_type in ("Business Tax Returns (3yr)", "Personal Tax Returns (3yr)"):
+        assert suggest_expiration(doc_type, date(2026, 1, 1)) == date(2029, 1, 1)
+
+
+def test_suggest_expiration_leap_day_falls_back_to_feb_28():
+    from app.logic import suggest_expiration
+
+    assert suggest_expiration("Business Tax Returns (3yr)", date(2024, 2, 29)) == date(2027, 2, 28)
+
+
+def test_suggest_expiration_none_for_other_types_or_no_date():
+    from app.logic import suggest_expiration
+
+    assert suggest_expiration("Lease Agreement", date(2026, 1, 1)) is None
+    assert suggest_expiration("Bank Statements (90 day)", None) is None
+
+
+def test_document_state_is_public_and_labels_documents():
+    from app.logic import document_state
+
+    assert document_state(doc("Expired"), TODAY) == "expired"
+    assert document_state(doc("Approved", expiration=date(2026, 1, 10)), TODAY) == "expiring_soon"
+    assert document_state(doc("Pending"), TODAY) == "pending"
+    assert document_state(doc("Approved"), TODAY) is None
+
+
+def test_expiration_label_wording():
+    from app.logic import expiration_label
+
+    assert expiration_label(None) == ""
+    assert expiration_label(12) == "Expires in 12 days"
+    assert expiration_label(1) == "Expires in 1 day"
+    assert expiration_label(0) == "Expires today"
+    assert expiration_label(-1) == "Expired 1 day ago"
+    assert expiration_label(-5) == "Expired 5 days ago"

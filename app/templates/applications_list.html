@@ -32,7 +32,7 @@
   <tbody>
     {% for application, summary in rows %}
     <tr data-application-id="{{ application.application_id }}">
-      <td>{{ application.application_id }}</td>
+      <td><a href="/applications/{{ application.application_id }}{{ query_string }}">{{ application.application_id }}</a></td>
       <td>{{ application.business_name }}</td>
       <td>{{ application.borrower_name }}</td>
       <td>{{ application.assigned_processor }}</td>
