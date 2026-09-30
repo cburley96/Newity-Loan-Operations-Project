@@ -1,0 +1,14 @@
+application_id,business_name,borrower_name,loan_amount,application_date,assigned_processor,document_type,document_status,date_received,expiration_date,notes
+APP-2026-2001,Harbor Bakery,Dana Ortiz,185000,9/8/2026,Aisha Patel,Bank Statements (90 day),Received,7/5/2026,10/3/2026,Expires this week - request fresh statements
+APP-2026-2001,Harbor Bakery,Dana Ortiz,185000,9/8/2026,Aisha Patel,Personal Tax Returns (3yr),Received,9/25/2026,9/25/2029,
+APP-2026-2001,Harbor Bakery,Dana Ortiz,185000,9/8/2026,Aisha Patel,SBA Form 1919,Approved,9/15/2026,,
+APP-2026-2001,Harbor Bakery,Dana Ortiz,185000,9/8/2026,Aisha Patel,Lease Agreement,Pending,,,Waiting on landlord
+APP-2026-2001,Harbor Bakery,Dana Ortiz,185000,9/8/2026,Aisha Patel,Ownership Verification,Expired,8/1/2026,,Signature page out of date
+APP-2026-2002,Summit Fitness LLC,Marcus Bell,320000,9/14/2026,Janet Morrison,Bank Statements (90 day),Expired,5/20/2026,8/18/2026,Statements are stale
+APP-2026-2002,Summit Fitness LLC,Marcus Bell,320000,9/14/2026,Janet Morrison,Business Tax Returns (3yr),Pending,,,
+APP-2026-2002,Summit Fitness LLC,Marcus Bell,320000,9/14/2026,Janet Morrison,Insurance Verification,Received,9/24/2026,9/24/2027,
+APP-2026-2002,Summit Fitness LLC,Marcus Bell,320000,9/14/2026,Janet Morrison,Articles of Incorporation,Approved,9/16/2026,,
+APP-2026-2003,Cedar Creek Landscaping,Priya Nair,95000,9/1/2026,Ricardo Fuentes,SBA Form 912,Approved,9/10/2026,,
+APP-2026-2003,Cedar Creek Landscaping,Priya Nair,95000,9/1/2026,Ricardo Fuentes,Debt Schedule,Approved,9/12/2026,,
+APP-2026-2003,Cedar Creek Landscaping,Priya Nair,95000,9/1/2026,Ricardo Fuentes,Business Financial Statements,Approved,9/18/2026,,
+APP-2026-2003,Cedar Creek Landscaping,Priya Nair,95000,9/1/2026,Ricardo Fuentes,Business Tax Returns (3yr),Not Required,,,Sole proprietor

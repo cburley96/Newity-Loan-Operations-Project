@@ -86,10 +86,19 @@ app/
   models.py       Application and Document tables
   templates/      Jinja pages       static/  CSS and a little JS
 data/             the provided sample spreadsheet
+demo_data/        CSVs to try on the Import page (see below)
 tests/            unit tests (logic) and functional tests (routes)
 ```
 
 Stack: Python, FastAPI, SQLAlchemy + SQLite, Jinja2, Pico.css (loaded from a CDN, so the first page load needs internet). No build step.
+
+## Demo files for the Import page
+
+Upload these in order from the Import page. Dates are set around late September 2026, so the new applications show as recently active rather than stalled.
+
+1. `demo_data/1_new_applications.csv`: 3 new applications, 13 documents, nothing wrong. One bank statement is about to expire and one document is already expired.
+2. `demo_data/2_duplicates_and_errors.csv`: 2 rows are skipped as duplicates and 4 are rejected, each listed with its row number and a plain-English reason. The valid rows still import.
+3. `demo_data/3_missing_column.csv`: the whole file is refused with "Missing column(s): notes" and nothing is imported.
 
 ## Other deliverables
 
