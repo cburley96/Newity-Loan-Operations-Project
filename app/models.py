@@ -13,6 +13,7 @@ class Application(Base):
     loan_amount = Column(Float, nullable=False)
     application_date = Column(Date, nullable=True)
     assigned_processor = Column(String, nullable=False)
+    last_activity = Column(Date, nullable=True)
 
     documents = relationship(
         "Document", back_populates="application", cascade="all, delete-orphan"

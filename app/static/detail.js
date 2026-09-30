@@ -26,6 +26,7 @@
     document.getElementById("sum-expired").textContent = summary.expired_count;
     document.getElementById("sum-expiring").textContent = summary.expiring_soon_count;
     document.getElementById("sum-severity").textContent = summary.severity_score;
+    document.getElementById("stalled-badge").hidden = !summary.is_stalled;
   }
 
   async function save(row, field, value) {
@@ -43,6 +44,7 @@
       const data = await response.json();
       applyDocument(row, data.document);
       applySummary(data.summary);
+      document.getElementById("sum-activity").textContent = data.activity_text;
       setMessage(row, "Saved", false);
     } catch (err) {
       setMessage(row, "Could not save - please try again", true);

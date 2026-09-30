@@ -7,6 +7,9 @@ EXPIRED_WEIGHT = 10
 EXPIRING_SOON_WEIGHT = 5
 PENDING_WEIGHT = 3
 PRIORITY_MULTIPLIER = 2
+STALLED_DAYS = 14
+STALLED_WEIGHT = 5
+COMPLETE_STATUSES = {"Approved", "Not Required"}
 PRIORITY_DOCUMENT_TYPES = {
     "Business Tax Returns (3yr)",
     "Personal Tax Returns (3yr)",
@@ -70,6 +73,29 @@ def document_severity(document, today: date) -> int:
     return weight
 
 
+def days_since_activity(last_activity: date | None, today: date) -> int | None:
+    if last_activity is None:
+        return None
+    return (today - last_activity).days
+
+
+def is_complete(application) -> bool:
+    return all(d.document_status in COMPLETE_STATUSES for d in application.documents)
+
+
+def is_stalled(application, today: date) -> bool:
+    days = days_since_activity(application.last_activity, today)
+    return days is not None and days >= STALLED_DAYS and not is_complete(application)
+
+
+def activity_label(days: int | None) -> str:
+    if days is None:
+        return "No activity recorded"
+    if days <= 0:
+        return "Today"
+    return f"{days} day{'' if days == 1 else 's'} ago"
+
+
 def application_summary(application, today: date) -> dict:
     outstanding = expired = expiring_soon = severity = 0
     for document in application.documents:
@@ -81,12 +107,18 @@ def application_summary(application, today: date) -> dict:
         elif state == "expiring_soon":
             expiring_soon += 1
         severity += document_severity(document, today)
+    stalled = is_stalled(application, today)
+    if stalled:
+        severity += STALLED_WEIGHT
     return {
         "outstanding_count": outstanding,
         "expired_count": expired,
         "expiring_soon_count": expiring_soon,
         "has_expiration_issue": (expired + expiring_soon) > 0,
         "severity_score": severity,
+        "is_stalled": stalled,
+        "is_complete": is_complete(application),
+        "days_since_activity": days_since_activity(application.last_activity, today),
     }
 
 
@@ -101,6 +133,7 @@ def pipeline_summary(applications, today: date) -> dict:
     total_outstanding = 0
     with_outstanding = 0
     with_expiration_issue = 0
+    complete = stalled = 0
     by_processor: dict[str, dict] = {}
 
     for application in applications:
@@ -108,6 +141,8 @@ def pipeline_summary(applications, today: date) -> dict:
         total_outstanding += summary["outstanding_count"]
         with_outstanding += summary["outstanding_count"] > 0
         with_expiration_issue += summary["has_expiration_issue"]
+        complete += summary["is_complete"]
+        stalled += summary["is_stalled"]
         bucket = by_processor.setdefault(
             application.assigned_processor, {"applications": 0, "outstanding": 0}
         )
@@ -119,6 +154,9 @@ def pipeline_summary(applications, today: date) -> dict:
         "total_outstanding": total_outstanding,
         "applications_with_outstanding": with_outstanding,
         "applications_with_expiration_issue": with_expiration_issue,
+        "applications_complete": complete,
+        "applications_stalled": stalled,
+        "applications_in_progress": len(applications) - complete - stalled,
         "by_processor": by_processor,
     }
 

@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.database import Base, SessionLocal, engine, get_db
 from app.logic import (
     DOCUMENT_STATUSES,
+    activity_label,
     application_summary,
     days_until_expiration,
     document_severity,
@@ -20,7 +21,7 @@ from app.logic import (
     suggest_expiration,
 )
 from app.models import Application, Document
-from app.seed import seed_if_empty
+from app.seed import seed_if_empty, upgrade_schema
 
 APP_DIR = Path(__file__).resolve().parent
 
@@ -44,6 +45,7 @@ def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
+        upgrade_schema(db)
         seed_if_empty(db)
     finally:
         db.close()
@@ -136,12 +138,14 @@ def application_detail(
         (document_view(d, today) for d in application.documents),
         key=lambda d: (-d["severity"], d["document_type"]),
     )
+    summary = application_summary(application, today)
     return templates.TemplateResponse(
         request,
         "application_detail.html",
         {
             "application": application,
-            "summary": application_summary(application, today),
+            "summary": summary,
+            "activity_text": activity_label(summary["days_since_activity"]),
             "documents": documents,
             "statuses": DOCUMENT_STATUSES,
             "query_string": _list_link(processor),
@@ -193,6 +197,7 @@ def update_document(
                 document.document_type, document.date_received
             )
 
+    document.application.last_activity = today
     db.commit()
     db.refresh(document)
     application = (
@@ -204,4 +209,6 @@ def update_document(
     return {
         "document": document_view(document, today),
         "summary": application_summary(application, today),
+        "last_activity": application.last_activity.isoformat(),
+        "activity_text": activity_label(0),
     }
