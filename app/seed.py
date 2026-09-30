@@ -1,7 +1,8 @@
 import csv
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
+from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 
 from app.models import Application, Document
@@ -15,6 +16,23 @@ def _parse_date(value: str):
     if not value:
         return None
     return datetime.strptime(value, "%m/%d/%Y").date()
+
+
+def derive_last_activity(application) -> date | None:
+    dates = [application.application_date] + [d.date_received for d in application.documents]
+    dates = [d for d in dates if d is not None]
+    return max(dates) if dates else None
+
+
+def upgrade_schema(db: Session) -> None:
+    """Add and backfill applications.last_activity on databases created before it existed."""
+    columns = {c["name"] for c in inspect(db.get_bind()).get_columns("applications")}
+    if "last_activity" not in columns:
+        db.execute(text("ALTER TABLE applications ADD COLUMN last_activity DATE"))
+        db.commit()
+    for application in db.query(Application).filter(Application.last_activity.is_(None)):
+        application.last_activity = derive_last_activity(application)
+    db.commit()
 
 
 def seed_if_empty(db: Session) -> None:
@@ -49,4 +67,7 @@ def seed_if_empty(db: Session) -> None:
             )
             db.add(document)
 
+    db.flush()
+    for application in applications.values():
+        application.last_activity = derive_last_activity(application)
     db.commit()

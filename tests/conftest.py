@@ -20,6 +20,7 @@ def _application(app_id, business, processor, loan=100000.0):
         loan_amount=loan,
         application_date=date(2025, 11, 1),
         assigned_processor=processor,
+        last_activity=TODAY,
     )
 
 

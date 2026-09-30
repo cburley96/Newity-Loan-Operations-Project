@@ -27,6 +27,7 @@
       <th>Outstanding</th>
       <th>Severity</th>
       <th>Expiration</th>
+      <th>Last activity</th>
     </tr>
   </thead>
   <tbody>
@@ -47,9 +48,13 @@
         <span class="badge badge-expiring">{{ summary.expiring_soon_count }} expiring soon</span>
         {% endif %}
       </td>
+      <td>
+        {% if summary.days_since_activity is none %}&mdash;{% elif summary.days_since_activity <= 0 %}Today{% else %}{{ summary.days_since_activity }}d ago{% endif %}
+        {% if summary.is_stalled %}<span class="badge badge-stalled">Stalled</span>{% endif %}
+      </td>
     </tr>
     {% else %}
-    <tr><td colspan="8">No applications match this filter.</td></tr>
+    <tr><td colspan="9">No applications match this filter.</td></tr>
     {% endfor %}
   </tbody>
 </table>

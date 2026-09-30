@@ -1,7 +1,13 @@
-from datetime import date
+from datetime import date, timedelta
 from types import SimpleNamespace
 
 from app.logic import (
+    STALLED_DAYS,
+    STALLED_WEIGHT,
+    activity_label,
+    days_since_activity,
+    is_complete,
+    is_stalled,
     EXPIRING_SOON_DAYS,
     application_summary,
     days_until_expiration,
@@ -20,11 +26,12 @@ def doc(status="Approved", expiration=None, doc_type="Lease Agreement"):
     )
 
 
-def app(processor="Aisha Patel", documents=(), application_id="A"):
+def app(processor="Aisha Patel", documents=(), application_id="A", last_activity=TODAY):
     return SimpleNamespace(
         application_id=application_id,
         assigned_processor=processor,
         documents=list(documents),
+        last_activity=last_activity,
     )
 
 
@@ -154,6 +161,9 @@ def test_application_summary_clean_application():
         "expiring_soon_count": 0,
         "has_expiration_issue": False,
         "severity_score": 0,
+        "is_stalled": False,
+        "is_complete": True,
+        "days_since_activity": 0,
     }
 
 
@@ -228,3 +238,74 @@ def test_expiration_label_wording():
     assert expiration_label(0) == "Expires today"
     assert expiration_label(-1) == "Expired 1 day ago"
     assert expiration_label(-5) == "Expired 5 days ago"
+
+
+# ---- stalled tracking ------------------------------------------------------
+
+LONG_AGO = TODAY - timedelta(days=STALLED_DAYS)
+
+
+def test_days_since_activity():
+    assert days_since_activity(None, TODAY) is None
+    assert days_since_activity(TODAY, TODAY) == 0
+    assert days_since_activity(date(2025, 12, 18), TODAY) == 14
+
+
+def test_stalled_at_threshold_but_not_before():
+    docs = [doc("Pending")]
+    assert is_stalled(app(documents=docs, last_activity=LONG_AGO), TODAY) is True
+    just_inside = TODAY - timedelta(days=STALLED_DAYS - 1)
+    assert is_stalled(app(documents=docs, last_activity=just_inside), TODAY) is False
+
+
+def test_complete_application_is_never_stalled():
+    docs = [doc("Approved"), doc("Not Required")]
+    a = app(documents=docs, last_activity=date(2020, 1, 1))
+    assert is_complete(a) is True
+    assert is_stalled(a, TODAY) is False
+
+
+def test_received_and_under_review_are_not_complete():
+    for status in ("Received", "Under Review", "Pending", "Expired"):
+        assert is_complete(app(documents=[doc("Approved"), doc(status)])) is False
+
+
+def test_unknown_last_activity_is_not_stalled():
+    assert is_stalled(app(documents=[doc("Pending")], last_activity=None), TODAY) is False
+
+
+def test_stalled_adds_to_severity():
+    docs = [doc("Pending")]
+    fresh = application_summary(app(documents=docs), TODAY)
+    stalled = application_summary(app(documents=docs, last_activity=LONG_AGO), TODAY)
+    assert stalled["is_stalled"] is True
+    assert stalled["severity_score"] == fresh["severity_score"] + STALLED_WEIGHT
+
+
+def test_stalled_application_outranks_equal_fresh_one():
+    docs = [doc("Pending")]
+    fresh = app(documents=docs, application_id="A-1")
+    stalled = app(documents=docs, application_id="A-2", last_activity=LONG_AGO)
+    ranked = [a.application_id for a, _ in rank_applications([fresh, stalled], TODAY)]
+    assert ranked == ["A-2", "A-1"]
+
+
+def test_pipeline_counts_complete_stalled_in_progress():
+    apps = [
+        app(documents=[doc("Approved")]),
+        app(documents=[doc("Pending")], last_activity=LONG_AGO),
+        app(documents=[doc("Pending")]),
+        app(documents=[doc("Under Review")]),
+    ]
+    s = pipeline_summary(apps, TODAY)
+    assert s["applications_complete"] == 1
+    assert s["applications_stalled"] == 1
+    assert s["applications_in_progress"] == 2
+    assert s["total_applications"] == 4
+
+
+def test_activity_label():
+    assert activity_label(None) == "No activity recorded"
+    assert activity_label(0) == "Today"
+    assert activity_label(1) == "1 day ago"
+    assert activity_label(20) == "20 days ago"

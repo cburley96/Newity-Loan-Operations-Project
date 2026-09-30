@@ -26,6 +26,13 @@
   <div><dt>Expired</dt><dd id="sum-expired">{{ summary.expired_count }}</dd></div>
   <div><dt>Expiring soon</dt><dd id="sum-expiring">{{ summary.expiring_soon_count }}</dd></div>
   <div><dt>Severity</dt><dd id="sum-severity">{{ summary.severity_score }}</dd></div>
+  <div>
+    <dt>Last activity</dt>
+    <dd>
+      <span id="sum-activity">{{ activity_text }}</span>
+      <span id="stalled-badge" class="badge badge-stalled" {% if not summary.is_stalled %}hidden{% endif %}>Stalled</span>
+    </dd>
+  </div>
 </section>
 
 <table id="documents" data-application-id="{{ application.application_id }}">
