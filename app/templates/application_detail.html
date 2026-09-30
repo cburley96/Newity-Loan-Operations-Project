@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ application.business_name }} - NEWITY{% endblock %}
+{% block content %}
+<nav aria-label="Application navigation" class="detail-nav">
+  <a href="/{{ query_string }}" id="back-link">&larr; Back to applications</a>
+  <span>
+    {% if previous_id %}<a href="/applications/{{ previous_id }}{{ query_string }}" id="prev-link">&larr; Previous</a>{% endif %}
+    {% if next_id %}<a href="/applications/{{ next_id }}{{ query_string }}" id="next-link">Next &rarr;</a>{% endif %}
+  </span>
+</nav>
+
+<h1>{{ application.business_name }}</h1>
+
+<section id="application-facts">
+  <dl class="facts">
+    <div><dt>Application</dt><dd>{{ application.application_id }}</dd></div>
+    <div><dt>Borrower</dt><dd>{{ application.borrower_name }}</dd></div>
+    <div><dt>Processor</dt><dd>{{ application.assigned_processor }}</dd></div>
+    <div><dt>Loan amount</dt><dd>${{ "{:,.0f}".format(application.loan_amount) }}</dd></div>
+    <div><dt>Application date</dt><dd>{{ application.application_date or "Not set" }}</dd></div>
+  </dl>
+</section>
+
+<section id="health-summary" class="facts">
+  <div><dt>Outstanding</dt><dd id="sum-outstanding">{{ summary.outstanding_count }}</dd></div>
+  <div><dt>Expired</dt><dd id="sum-expired">{{ summary.expired_count }}</dd></div>
+  <div><dt>Expiring soon</dt><dd id="sum-expiring">{{ summary.expiring_soon_count }}</dd></div>
+  <div><dt>Severity</dt><dd id="sum-severity">{{ summary.severity_score }}</dd></div>
+</section>
+
+<table id="documents" data-application-id="{{ application.application_id }}">
+  <thead>
+    <tr>
+      <th>Document</th>
+      <th>Status</th>
+      <th>Received</th>
+      <th>Expires</th>
+      <th>Notes</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for d in documents %}
+    <tr data-document-id="{{ d.id }}">
+      <td>{{ d.document_type }}</td>
+      <td>
+        <select data-field="document_status" aria-label="Status for {{ d.document_type }}">
+          {% for s in statuses %}
+          <option value="{{ s }}" {% if s == d.document_status %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </td>
+      <td><input type="date" data-field="date_received" value="{{ d.date_received }}" aria-label="Date received for {{ d.document_type }}"></td>
+      <td>
+        <input type="date" data-field="expiration_date" value="{{ d.expiration_date }}" aria-label="Expiration date for {{ d.document_type }}">
+        <small class="expiration-text">{{ d.expiration_text }}</small>
+      </td>
+      <td><input type="text" data-field="notes" value="{{ d.notes }}" aria-label="Notes for {{ d.document_type }}"></td>
+      <td class="status-cell">
+        <span class="badge state-badge {% if d.state %}badge-{{ d.state }}{% endif %}" {% if not d.state %}hidden{% endif %}>{{ d.state_label }}</span>
+        <small class="save-message" role="status"></small>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script src="{{ url_for('static', path='detail.js') }}"></script>
+{% endblock %}

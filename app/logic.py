@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 OUTSTANDING_STATUSES = {"Pending", "Expired"}
 EXPIRING_SOON_DAYS = 30
@@ -24,7 +24,28 @@ def days_until_expiration(expiration_date: date | None, today: date) -> int | No
     return (expiration_date - today).days
 
 
-def _document_state(document, today: date) -> str | None:
+BANK_STATEMENT_TYPE = "Bank Statements (90 day)"
+TAX_RETURN_TYPES = {"Business Tax Returns (3yr)", "Personal Tax Returns (3yr)"}
+BANK_STATEMENT_VALID_DAYS = 90
+TAX_RETURN_VALID_YEARS = 3
+
+
+def suggest_expiration(document_type: str, received_date: date | None) -> date | None:
+    if received_date is None:
+        return None
+    if document_type == BANK_STATEMENT_TYPE:
+        return received_date + timedelta(days=BANK_STATEMENT_VALID_DAYS)
+    if document_type in TAX_RETURN_TYPES:
+        try:
+            return received_date.replace(year=received_date.year + TAX_RETURN_VALID_YEARS)
+        except ValueError:
+            return received_date.replace(
+                year=received_date.year + TAX_RETURN_VALID_YEARS, day=28
+            )
+    return None
+
+
+def document_state(document, today: date) -> str | None:
     """Return 'expired', 'expiring_soon', 'pending', or None for a healthy document."""
     if document.document_status == "Not Required":
         return None
@@ -43,7 +64,7 @@ def document_severity(document, today: date) -> int:
         "expired": EXPIRED_WEIGHT,
         "expiring_soon": EXPIRING_SOON_WEIGHT,
         "pending": PENDING_WEIGHT,
-    }.get(_document_state(document, today), 0)
+    }.get(document_state(document, today), 0)
     if document.document_type in PRIORITY_DOCUMENT_TYPES:
         weight *= PRIORITY_MULTIPLIER
     return weight
@@ -54,7 +75,7 @@ def application_summary(application, today: date) -> dict:
     for document in application.documents:
         if is_outstanding(document.document_status):
             outstanding += 1
-        state = _document_state(document, today)
+        state = document_state(document, today)
         if state == "expired":
             expired += 1
         elif state == "expiring_soon":
@@ -100,3 +121,24 @@ def pipeline_summary(applications, today: date) -> dict:
         "applications_with_expiration_issue": with_expiration_issue,
         "by_processor": by_processor,
     }
+
+
+DOCUMENT_STATUSES = [
+    "Pending",
+    "Received",
+    "Under Review",
+    "Approved",
+    "Expired",
+    "Not Required",
+]
+
+
+def expiration_label(days: int | None) -> str:
+    if days is None:
+        return ""
+    if days < 0:
+        n = abs(days)
+        return f"Expired {n} day{'' if n == 1 else 's'} ago"
+    if days == 0:
+        return "Expires today"
+    return f"Expires in {days} day{'' if days == 1 else 's'}"
