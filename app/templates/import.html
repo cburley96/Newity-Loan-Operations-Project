@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Import - NEWITY{% endblock %}
+{% block content %}
+<h1>Import applications</h1>
+<p>Upload a CSV in the same format as the team spreadsheet. New applications and documents are added.
+Rows for a document that is already on file (same application ID and document type) are skipped, and existing data is never overwritten.</p>
+
+<form method="post" action="/import" enctype="multipart/form-data" id="import-form">
+  <input type="file" name="file" accept=".csv,text/csv" required>
+  <button type="submit">Import</button>
+</form>
+
+{% if error %}
+<article id="import-error" class="import-error"><strong>Could not import:</strong> {{ error }}</article>
+{% endif %}
+
+{% if result %}
+<section id="import-result">
+  <h2>Import complete</h2>
+  <ul>
+    <li><strong id="res-added">{{ result.added_documents }}</strong> document(s) added
+      across <strong id="res-new-apps">{{ result.new_applications }}</strong> new application(s)</li>
+    <li><strong id="res-duplicates">{{ result.duplicates|length }}</strong> duplicate row(s) skipped</li>
+    <li><strong id="res-invalid">{{ result.invalid|length }}</strong> invalid row(s) skipped</li>
+  </ul>
+
+  {% if result.duplicates %}
+  <details>
+    <summary>Duplicate rows</summary>
+    <table id="duplicate-table">
+      <thead><tr><th>Row</th><th>Application</th><th>Document</th></tr></thead>
+      <tbody>
+      {% for d in result.duplicates %}
+        <tr><td>{{ d.row }}</td><td>{{ d.application_id }}</td><td>{{ d.document_type }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </details>
+  {% endif %}
+
+  {% if result.invalid %}
+  <details open>
+    <summary>Invalid rows</summary>
+    <table id="invalid-table">
+      <thead><tr><th>Row</th><th>Application</th><th>Problem</th></tr></thead>
+      <tbody>
+      {% for r in result.invalid %}
+        <tr><td>{{ r.row }}</td><td>{{ r.application_id or "—" }}</td><td>{{ r.reason }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </details>
+  {% endif %}
+
+  <p><a href="/">View applications</a></p>
+</section>
+{% endif %}
+{% endblock %}

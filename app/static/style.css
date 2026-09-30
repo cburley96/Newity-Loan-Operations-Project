@@ -170,3 +170,5 @@
 .stat-tiles strong {
   font-size: 1.8rem;
 }
+
+.import-error { border-left: 4px solid #b3261e; }
