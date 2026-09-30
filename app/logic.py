@@ -129,6 +129,53 @@ def rank_applications(applications, today: date) -> list:
     return pairs
 
 
+TOP_APPLICATIONS_LIMIT = 10
+ATTENTION_DOCUMENTS_LIMIT = 15
+
+
+def top_applications(applications, today: date, limit: int = TOP_APPLICATIONS_LIMIT) -> list:
+    """Most severe applications first; applications with nothing wrong are left out."""
+    ranked = [pair for pair in rank_applications(applications, today) if pair[1]["severity_score"] > 0]
+    return ranked[:limit]
+
+
+def attention_documents(applications, today: date) -> list[dict]:
+    """Expired and expiring-soon documents across the pipeline, expired first, most overdue first."""
+    rows = []
+    for application in applications:
+        for document in application.documents:
+            state = document_state(document, today)
+            if state not in ("expired", "expiring_soon"):
+                continue
+            days = days_until_expiration(document.expiration_date, today)
+            if state == "expired" and (days is None or days >= 0):
+                label = "Marked expired"
+            else:
+                label = expiration_label(days)
+            rows.append(
+                {
+                    "application_id": application.application_id,
+                    "business_name": application.business_name,
+                    "assigned_processor": application.assigned_processor,
+                    "document_type": document.document_type,
+                    "state": state,
+                    "expiration_date": document.expiration_date,
+                    "days": days,
+                    "label": label,
+                }
+            )
+    rows.sort(
+        key=lambda r: (
+            r["state"] != "expired",
+            r["days"] is None,
+            r["days"] if r["days"] is not None else 0,
+            r["application_id"],
+            r["document_type"],
+        )
+    )
+    return rows
+
+
 def pipeline_summary(applications, today: date) -> dict:
     total_outstanding = 0
     with_outstanding = 0

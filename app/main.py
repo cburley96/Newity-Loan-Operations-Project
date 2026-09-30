@@ -16,10 +16,12 @@ from app.database import Base, SessionLocal, engine, get_db
 from app.importer import ImportFileError, import_csv
 from app.logic import (
     DEFAULT_PROCESSORS,
+    ATTENTION_DOCUMENTS_LIMIT,
     DOCUMENT_STATUSES,
     DOCUMENT_TYPES,
     activity_label,
     application_summary,
+    attention_documents,
     days_until_expiration,
     document_severity,
     document_state,
@@ -29,6 +31,7 @@ from app.logic import (
     rank_applications,
     ring_segments,
     suggest_expiration,
+    top_applications,
 )
 from app.models import Application, Document
 from app.seed import seed_if_empty, upgrade_schema
@@ -97,6 +100,7 @@ def dashboard(
 ):
     applications = db.query(Application).options(selectinload(Application.documents)).all()
     summary = pipeline_summary(applications, today)
+    attention = attention_documents(applications, today)
     processors = sorted(
         summary["by_processor"].items(),
         key=lambda item: (-item[1]["outstanding"], item[0]),
@@ -107,6 +111,9 @@ def dashboard(
         {
             "summary": summary,
             "processors": processors,
+            "top_applications": top_applications(applications, today),
+            "attention_documents": attention[:ATTENTION_DOCUMENTS_LIMIT],
+            "attention_total": len(attention),
             "segments": ring_segments(
                 summary["applications_complete"],
                 summary["applications_in_progress"],
