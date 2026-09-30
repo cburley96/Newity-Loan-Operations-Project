@@ -68,6 +68,15 @@
   font-weight: 600;
 }
 
+.row-dirty {
+  background: #fff8e1;
+}
+
+.row-actions button {
+  margin: 0.25rem 0.25rem 0 0;
+  padding: 0.25rem 0.75rem;
+}
+
 .dashboard-top {
   display: flex;
   align-items: center;

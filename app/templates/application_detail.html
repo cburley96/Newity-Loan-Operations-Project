@@ -66,6 +66,10 @@
       <td class="status-cell">
         <span class="badge state-badge {% if d.state %}badge-{{ d.state }}{% endif %}" {% if not d.state %}hidden{% endif %}>{{ d.state_label }}</span>
         <small class="save-message" role="status"></small>
+        <span class="row-actions" hidden>
+          <button type="button" class="row-save">Save</button>
+          <button type="button" class="row-cancel secondary outline">Cancel</button>
+        </span>
       </td>
     </tr>
     {% endfor %}
