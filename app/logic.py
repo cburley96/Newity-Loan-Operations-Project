@@ -196,6 +196,33 @@ DOCUMENT_STATUSES = [
 ]
 
 
+DOCUMENT_TYPES = [
+    "Articles of Incorporation",
+    "Bank Statements (90 day)",
+    "Business Financial Statements",
+    "Business Licenses & Permits",
+    "Business Tax Returns (3yr)",
+    "Debt Schedule",
+    "Insurance Verification",
+    "Lease Agreement",
+    "Ownership Verification",
+    "Personal Tax Returns (3yr)",
+    "SBA Form 1919",
+    "SBA Form 912",
+]
+
+DEFAULT_PROCESSORS = ["Aisha Patel", "Janet Morrison", "Ricardo Fuentes"]
+
+
+def next_application_id(existing_ids, today: date) -> str:
+    prefix = f"APP-{today.year}-"
+    numbers = []
+    for application_id in existing_ids:
+        if application_id.startswith(prefix) and application_id[len(prefix):].isdigit():
+            numbers.append(int(application_id[len(prefix):]))
+    return f"{prefix}{max(numbers, default=1000) + 1}"
+
+
 def expiration_label(days: int | None) -> str:
     if days is None:
         return ""

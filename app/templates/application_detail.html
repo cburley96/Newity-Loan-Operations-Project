@@ -19,6 +19,7 @@
     <div><dt>Loan amount</dt><dd>${{ "{:,.0f}".format(application.loan_amount) }}</dd></div>
     <div><dt>Application date</dt><dd>{{ application.application_date or "Not set" }}</dd></div>
   </dl>
+  <p><a href="/applications/{{ application.application_id }}/edit" id="edit-link">Edit details</a></p>
 </section>
 
 <section id="health-summary" class="facts">
@@ -70,11 +71,34 @@
           <button type="button" class="row-save">Save</button>
           <button type="button" class="row-cancel secondary outline">Cancel</button>
         </span>
+        <form method="post" action="/applications/{{ application.application_id }}/documents/{{ d.id }}/delete"
+              class="row-remove" data-confirm="Remove {{ d.document_type }} from this application?"
+              onsubmit="return confirm(this.dataset.confirm)">
+          <button type="submit" class="remove-document secondary outline" aria-label="Remove {{ d.document_type }}">Remove</button>
+        </form>
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+
+<section id="add-document">
+  {% if addable_types %}
+  <form method="post" action="/applications/{{ application.application_id }}/documents" id="add-document-form">
+    <fieldset role="group">
+      <select name="document_type" required aria-label="Document type to add">
+        <option value="">Add a document...</option>
+        {% for t in addable_types %}
+        <option value="{{ t }}">{{ t }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Add document</button>
+    </fieldset>
+  </form>
+  {% else %}
+  <small>All standard document types are already on this application.</small>
+  {% endif %}
+</section>
 
 <script src="{{ url_for('static', path='detail.js') }}"></script>
 {% endblock %}

@@ -2,12 +2,15 @@ from datetime import date, timedelta
 from types import SimpleNamespace
 
 from app.logic import (
+    DOCUMENT_TYPES,
+    PRIORITY_DOCUMENT_TYPES,
     STALLED_DAYS,
     STALLED_WEIGHT,
     activity_label,
     days_since_activity,
     is_complete,
     is_stalled,
+    next_application_id,
     EXPIRING_SOON_DAYS,
     application_summary,
     days_until_expiration,
@@ -348,3 +351,18 @@ def test_ring_segments_empty_pipeline_has_no_division_error():
     from app.logic import ring_segments
 
     assert all(s["percent"] == 0.0 for s in ring_segments(0, 0, 0))
+
+
+def test_next_application_id_continues_the_year_sequence():
+    ids = ["APP-2026-1001", "APP-2026-1060", "APP-2025-9999", "custom-id"]
+    assert next_application_id(ids, date(2026, 5, 1)) == "APP-2026-1061"
+
+
+def test_next_application_id_starts_at_1001_for_a_new_year_or_empty_db():
+    assert next_application_id([], date(2026, 5, 1)) == "APP-2026-1001"
+    assert next_application_id(["APP-2026-1060"], date(2027, 1, 2)) == "APP-2027-1001"
+
+
+def test_standard_document_types_are_unique_and_include_priority_types():
+    assert len(DOCUMENT_TYPES) == len(set(DOCUMENT_TYPES)) == 12
+    assert PRIORITY_DOCUMENT_TYPES <= set(DOCUMENT_TYPES)
