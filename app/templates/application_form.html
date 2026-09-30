@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ heading }} - NEWITY{% endblock %}
+{% block content %}
+<h1>{{ heading }}</h1>
+{% if id_editable %}
+<p>A new application starts with the standard set of 12 documents, all marked Pending.</p>
+{% endif %}
+
+<form method="post" action="{{ action }}" id="application-form">
+  {% if id_editable %}
+  <label>Application ID
+    <input type="text" name="application_id" value="{{ form.application_id }}" required
+           {% if errors.application_id %}aria-invalid="true"{% endif %}>
+    {% if errors.application_id %}<small class="field-error">{{ errors.application_id }}</small>{% endif %}
+  </label>
+  {% endif %}
+
+  <label>Business name
+    <input type="text" name="business_name" value="{{ form.business_name }}" required
+           {% if errors.business_name %}aria-invalid="true"{% endif %}>
+    {% if errors.business_name %}<small class="field-error">{{ errors.business_name }}</small>{% endif %}
+  </label>
+
+  <label>Borrower name
+    <input type="text" name="borrower_name" value="{{ form.borrower_name }}" required
+           {% if errors.borrower_name %}aria-invalid="true"{% endif %}>
+    {% if errors.borrower_name %}<small class="field-error">{{ errors.borrower_name }}</small>{% endif %}
+  </label>
+
+  <label>Assigned processor
+    <select name="assigned_processor" required
+            {% if errors.assigned_processor %}aria-invalid="true"{% endif %}>
+      <option value="">Choose a processor...</option>
+      {% for p in processors %}
+      <option value="{{ p }}" {% if p == form.assigned_processor %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+    {% if errors.assigned_processor %}<small class="field-error">{{ errors.assigned_processor }}</small>{% endif %}
+  </label>
+
+  <label>Loan amount ($)
+    <input type="text" inputmode="decimal" name="loan_amount" value="{{ form.loan_amount }}" required
+           {% if errors.loan_amount %}aria-invalid="true"{% endif %}>
+    {% if errors.loan_amount %}<small class="field-error">{{ errors.loan_amount }}</small>{% endif %}
+  </label>
+
+  <label>Application date
+    <input type="date" name="application_date" value="{{ form.application_date }}"
+           {% if errors.application_date %}aria-invalid="true"{% endif %}>
+    {% if errors.application_date %}<small class="field-error">{{ errors.application_date }}</small>{% endif %}
+  </label>
+
+  <button type="submit">Save</button>
+  <a href="{{ cancel_url }}" role="button" class="secondary outline">Cancel</a>
+</form>
+{% endblock %}
