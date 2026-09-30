@@ -1,0 +1,18 @@
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-expired {
+  background: #fde2e2;
+  color: #a11d1d;
+}
+
+.badge-expiring {
+  background: #fff1cc;
+  color: #7a5200;
+}
