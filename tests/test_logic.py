@@ -13,11 +13,13 @@ from app.logic import (
     next_application_id,
     EXPIRING_SOON_DAYS,
     application_summary,
+    attention_documents,
     days_until_expiration,
     document_severity,
     is_outstanding,
     pipeline_summary,
     rank_applications,
+    top_applications,
 )
 
 TODAY = date(2026, 1, 1)
@@ -32,6 +34,7 @@ def doc(status="Approved", expiration=None, doc_type="Lease Agreement"):
 def app(processor="Aisha Patel", documents=(), application_id="A", last_activity=TODAY):
     return SimpleNamespace(
         application_id=application_id,
+        business_name=f"Business {application_id}",
         assigned_processor=processor,
         documents=list(documents),
         last_activity=last_activity,
@@ -366,3 +369,84 @@ def test_next_application_id_starts_at_1001_for_a_new_year_or_empty_db():
 def test_standard_document_types_are_unique_and_include_priority_types():
     assert len(DOCUMENT_TYPES) == len(set(DOCUMENT_TYPES)) == 12
     assert PRIORITY_DOCUMENT_TYPES <= set(DOCUMENT_TYPES)
+
+
+def test_top_applications_ranks_limits_and_skips_healthy():
+    apps = [app(documents=[doc("Pending")], application_id=f"P{i:02d}") for i in range(12)]
+    apps.append(app(documents=[doc("Expired")], application_id="WORST"))
+    apps.append(app(documents=[doc("Approved")], application_id="CLEAN"))
+    top = top_applications(apps, TODAY)
+    ids = [a.application_id for a, _ in top]
+    assert len(top) == 10
+    assert ids[0] == "WORST"
+    assert "CLEAN" not in ids
+    assert ids[1:] == [f"P{i:02d}" for i in range(9)]
+
+
+def test_top_applications_empty_when_nothing_is_wrong():
+    assert top_applications([app(documents=[doc("Approved")])], TODAY) == []
+    assert top_applications([], TODAY) == []
+
+
+def test_attention_documents_lists_expired_and_expiring_most_overdue_first():
+    a = app(
+        application_id="A",
+        documents=[
+            doc("Approved", expiration=date(2026, 1, 20), doc_type="Debt Schedule"),
+            doc("Approved", expiration=date(2025, 12, 25), doc_type="Lease Agreement"),
+            doc("Pending", doc_type="SBA Form 912"),
+            doc("Approved", expiration=date(2027, 1, 1), doc_type="SBA Form 1919"),
+            doc("Not Required", expiration=date(2025, 1, 1), doc_type="Insurance Verification"),
+        ],
+    )
+    rows = attention_documents([a], TODAY)
+    assert [(r["document_type"], r["state"], r["days"]) for r in rows] == [
+        ("Lease Agreement", "expired", -7),
+        ("Debt Schedule", "expiring_soon", 19),
+    ]
+    assert rows[0]["label"] == "Expired 7 days ago"
+    assert rows[0]["business_name"] == "Business A"
+    assert rows[1]["label"] == "Expires in 19 days"
+
+
+def test_attention_documents_expired_without_date_comes_after_dated_ones():
+    a = app(
+        documents=[
+            doc("Expired", doc_type="Debt Schedule"),
+            doc("Approved", expiration=date(2025, 12, 1), doc_type="Lease Agreement"),
+        ]
+    )
+    rows = attention_documents([a], TODAY)
+    assert [r["document_type"] for r in rows] == ["Lease Agreement", "Debt Schedule"]
+    assert rows[1]["days"] is None
+    assert rows[1]["label"] == "Marked expired"
+
+
+def test_attention_documents_status_expired_with_future_date_is_labelled_marked_expired():
+    a = app(documents=[doc("Expired", expiration=date(2029, 1, 1))])
+    (row,) = attention_documents([a], TODAY)
+    assert row["state"] == "expired"
+    assert row["label"] == "Marked expired"
+
+
+def test_attention_documents_expired_come_before_expiring_soon():
+    a = app(
+        documents=[
+            doc("Approved", expiration=date(2026, 1, 2), doc_type="Debt Schedule"),
+            doc("Expired", doc_type="Lease Agreement"),
+        ]
+    )
+    rows = attention_documents([a], TODAY)
+    assert [r["state"] for r in rows] == ["expired", "expiring_soon"]
+
+
+def test_attention_documents_ties_break_by_application_id():
+    d = date(2025, 12, 25)
+    rows = attention_documents(
+        [
+            app(application_id="B", documents=[doc("Approved", expiration=d)]),
+            app(application_id="A", documents=[doc("Approved", expiration=d)]),
+        ],
+        TODAY,
+    )
+    assert [r["application_id"] for r in rows] == ["A", "B"]

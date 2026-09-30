@@ -38,6 +38,69 @@
   <article><small>Expiring within 30 days</small><strong id="stat-expiring">{{ summary.expiring_soon_documents }}</strong></article>
 </section>
 
+<h2>Most urgent applications</h2>
+<p><small>Ranked by severity score, top {{ top_applications|length }} shown. Applications with nothing outstanding are left out.</small></p>
+<table id="top-applications">
+  <thead>
+    <tr>
+      <th>Application</th>
+      <th>Business</th>
+      <th>Processor</th>
+      <th>Outstanding</th>
+      <th>Severity</th>
+      <th>Flags</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for application, s in top_applications %}
+    <tr data-application-id="{{ application.application_id }}">
+      <td><a href="/applications/{{ application.application_id }}">{{ application.application_id }}</a></td>
+      <td>{{ application.business_name }}</td>
+      <td>{{ application.assigned_processor }}</td>
+      <td>{{ s.outstanding_count }}</td>
+      <td>{{ s.severity_score }}</td>
+      <td>
+        {% if s.expired_count %}<span class="badge badge-expired">{{ s.expired_count }} expired</span>{% endif %}
+        {% if s.expiring_soon_count %}<span class="badge badge-expiring">{{ s.expiring_soon_count }} expiring soon</span>{% endif %}
+        {% if s.is_stalled %}<span class="badge badge-stalled">Stalled</span>{% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6">Nothing needs attention right now.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Expired and expiring documents</h2>
+<p><small id="attention-count">Showing {{ attention_documents|length }} of {{ attention_total }}. Expired first, most overdue first; expiring means within 30 days.</small></p>
+<table id="attention-documents">
+  <thead>
+    <tr>
+      <th>Application</th>
+      <th>Business</th>
+      <th>Processor</th>
+      <th>Document</th>
+      <th>Expiration</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for d in attention_documents %}
+    <tr data-application-id="{{ d.application_id }}">
+      <td><a href="/applications/{{ d.application_id }}">{{ d.application_id }}</a></td>
+      <td>{{ d.business_name }}</td>
+      <td>{{ d.assigned_processor }}</td>
+      <td>{{ d.document_type }}</td>
+      <td>
+        <span class="badge {% if d.state == 'expired' %}badge-expired{% else %}badge-expiring{% endif %}">{{ d.label }}</span>
+        {% if d.expiration_date %}<small>{{ d.expiration_date }}</small>{% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5">No expired or expiring documents.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
 <h2>By processor</h2>
 <table id="processor-table">
   <thead>
